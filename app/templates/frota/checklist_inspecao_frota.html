@@ -1,0 +1,67 @@
+{% extends "frota/base_frota.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4>
+                <i class="bi bi-clipboard-check"></i>
+                Checklist - Inspeção #{{ inspecao.id }}
+                <small class="float-end">
+                    {{ inspecao.placa }} | {{ inspecao.modelo }}
+                </small>
+            </h4>
+        </div>
+
+        <div class="card-body">
+            <form method="POST">
+                <!-- Dados básicos -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">KM Atual</label>
+                        <input type="number" name="km_atual" value="{{ inspecao.km_atual }}" class="form-control"
+                            required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Horímetro</label>
+                        <input type="number" name="horimetro" value="{{ inspecao.horimetro }}" class="form-control"
+                            required>
+                    </div>
+                </div>
+
+                <!-- Itens do checklist -->
+                <div class="row">
+                    {% for campo in campos %}
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="{{ campo }}" value="ok"
+                                id="{{ campo }}">
+                            <label class="form-check-label" for="{{ campo }}">
+                                {{ campo.replace('_', ' ')|title }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Observações -->
+                <div class="mb-3">
+                    <label class="form-label">Observações</label>
+                    <textarea name="observacoes" class="form-control"
+                        rows="3">{{ inspecao.observacoes or '' }}</textarea>
+                </div>
+
+                <!-- Botões -->
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('main.frota') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Salvar Checklist
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

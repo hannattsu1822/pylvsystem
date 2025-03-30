@@ -1,0 +1,181 @@
+/* Container principal */
+.horimetro-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Cabeçalho */
+.horimetro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.horimetro-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.horimetro-title i {
+    font-size: 1.8rem;
+    color: #2c3e50;
+}
+
+.horimetro-subtitle {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+}
+
+/* Card principal */
+.horimetro-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.horimetro-card-header {
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: white;
+    padding: 1.2rem 1.5rem;
+    border-bottom: none;
+}
+
+.horimetro-card-header h5 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Tabela */
+.horimetro-table {
+    margin: 0;
+}
+
+.horimetro-table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    color: #495057;
+    border-bottom-width: 2px;
+}
+
+.horimetro-table th,
+.horimetro-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.horimetro-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.horimetro-table tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Células numéricas */
+.numeric-cell {
+    text-align: right;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9rem;
+}
+
+/* Status */
+.status-badge {
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    min-width: 100px;
+    display: inline-block;
+    text-align: center;
+}
+
+.bg-status-urgent {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+.bg-status-warning {
+    background-color: #ffd166;
+    color: #2c3e50;
+}
+
+.bg-status-attention {
+    background-color: #06d6a0;
+    color: white;
+}
+
+.bg-status-normal {
+    background-color: #118ab2;
+    color: white;
+}
+
+.bg-status-no-data {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Rodapé e legenda */
+.horimetro-footer {
+    background-color: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.legend-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .horimetro-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .horimetro-table {
+        font-size: 0.85rem;
+    }
+
+    .horimetro-table th,
+    .horimetro-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .status-badge {
+        min-width: 80px;
+        padding: 0.4rem 0.5rem;
+    }
+}

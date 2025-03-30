@@ -1,0 +1,153 @@
+{% extends "frota/base_frota.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="my-4">Filtrar Inspeções de Frota</h4>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5>Filtros</h5>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('main.filtrar_inspecoes_frota') }}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Placa</label>
+                        <select class="form-select" name="placa">
+                            <option value="">Todas</option>
+                            {% for placa in placas %}
+                            <option value="{{ placa }}" {% if filtros.placa==placa %}selected{% endif %}>{{ placa }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Motorista</label>
+                        <select class="form-select" name="matricula">
+                            <option value="">Todos</option>
+                            {% for motorista in motoristas %}
+                            <option value="{{ motorista.matricula }}" {% if filtros.matricula==motorista.matricula
+                                %}selected{% endif %}>{{ motorista.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-control" name="data_inicio" value="{{ filtros.data_inicio }}">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label class="form-label">Data Fim</label>
+                        <input type="date" class="form-control" name="data_fim" value="{{ filtros.data_fim }}">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                        <a href="{{ url_for('main.filtrar_inspecoes_frota') }}" class="btn btn-outline-secondary ms-2"
+                            title="Limpar filtros">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5>Resultados</h5>
+            <span class="badge bg-light text-dark">{{ inspecoes|length }} inspeções encontradas</span>
+        </div>
+
+        <div class="card-body">
+            {% if inspecoes %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Data</th>
+                            <th>Veículo</th>
+                            <th>Motorista</th>
+                            <th>KM</th>
+                            <th>Horímetro</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inspecao in inspecoes %}
+                        <tr>
+                            <td>{{ inspecao.id }}</td>
+                            <td>{{ inspecao.data_formatada }}</td>
+                            <td>{{ inspecao.placa }} - {{ inspecao.veiculo_modelo }}</td>
+                            <td>{{ inspecao.motorista_nome }}</td>
+                            <td>{{ inspecao.km_atual }}</td>
+                            <td>{{ inspecao.horimetro }}</td>
+                            <td class="text-end">
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('main.visualizar_inspecao_frota', id=inspecao.id) }}"
+                                        class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                    <a href="{{ url_for('main.gerar_pdf_inspecao_frota', id=inspecao.id) }}"
+                                        class="btn btn-sm btn-secondary">
+                                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                                    </a>
+                                    <a href="{{ url_for('main.editar_inspecao_frota', id=inspecao.id) }}"
+                                        class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </a>
+                                    <form method="POST" action="{{ url_for('main.filtrar_inspecoes_frota') }}"
+                                        class="d-inline">
+                                        <input type="hidden" name="excluir" value="{{ inspecao.id }}">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Tem certeza que deseja excluir esta inspeção?')">
+                                            <i class="bi bi-trash"></i> Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">Nenhuma inspeção encontrada com os filtros selecionados.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .table th {
+        white-space: nowrap;
+    }
+
+    .btn-group .btn {
+        margin-right: 5px;
+        min-width: 70px;
+    }
+
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+</style>
+{% endblock %}

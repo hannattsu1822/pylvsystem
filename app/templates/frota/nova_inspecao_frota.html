@@ -1,0 +1,245 @@
+{% extends "frota/base_frota.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/nova_inspecao_frota.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+<div class="container-fluid py-3">
+    <h4 class="mb-4">
+        <i class="bi bi-clipboard2-check"></i> Nova Inspeção de Frota
+    </h4>
+
+    <form method="POST" class="row g-3">
+        <!-- Seção 1: Dados Básicos -->
+        <div class="col-md-12 card">
+            <div class="card-header">
+                <h5><i class="bi bi-card-checklist"></i> Dados Básicos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Veículo *</label>
+                        <select class="form-select" name="veiculo_id" required>
+                            <option value="">Selecione...</option>
+                            {% for veiculo in veiculos %}
+                            <option value="{{ veiculo.id }}">{{ veiculo.placa }} - {{ veiculo.modelo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Motorista *</label>
+                        <select class="form-select" name="matricula" required>
+                            <option value="">Selecione...</option>
+                            {% for motorista in motoristas %}
+                            <option value="{{ motorista.matricula }}">{{ motorista.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">KM Atual *</label>
+                        <input type="number" class="form-control" name="km_atual" required>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Horímetro *</label>
+                        <input type="number" class="form-control" name="horimetro" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 2: Checklist -->
+        <div class="col-md-12 card">
+            <div class="card-header">
+                <h5><i class="bi bi-clipboard2-pulse"></i> Checklist de Inspeção</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Grupo 1: Itens Básicos -->
+                    <div class="col-md-6">
+                        <h6 class="section-title"><i class="bi bi-car-front"></i> Itens Básicos</h6>
+                        <table class="table table-sm checklist-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center conforme">Conforme</th>
+                                    <th class="text-center nao-conforme">Não Conforme</th>
+                                    <th class="text-center nao-informado">N/I</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ['buzina', 'cinto_seguranca', 'quebra_sol', 'retrovisor_inteiro',
+                                'retrovisor_direito_esquerdo', 'limpador_para_brisa'] %}
+                                <tr>
+                                    <td>{{ item.replace('_', ' ')|title }}</td>
+                                    <td class="text-center conforme">
+                                        <input type="radio" name="{{ item }}" value="1" class="form-check-input"
+                                            checked>
+                                    </td>
+                                    <td class="text-center nao-conforme">
+                                        <input type="radio" name="{{ item }}" value="0" class="form-check-input">
+                                    </td>
+                                    <td class="text-center nao-informado">
+                                        <input type="radio" name="{{ item }}" value="2" class="form-check-input">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grupo 2: Iluminação -->
+                    <div class="col-md-6">
+                        <h6 class="section-title"><i class="bi bi-lightbulb"></i> Iluminação</h6>
+                        <table class="table table-sm checklist-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center conforme">Conforme</th>
+                                    <th class="text-center nao-conforme">Não Conforme</th>
+                                    <th class="text-center nao-informado">N/I</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ['farol_baixa', 'farol_alto', 'meia_luz', 'luz_freio', 'luz_re',
+                                'bateria', 'luzes_painel', 'seta_direita_esquerdo', 'pisca_alerta',
+                                'luz_interna'] %}
+                                <tr>
+                                    <td>{{ item.replace('_', ' ')|title }}</td>
+                                    <td class="text-center conforme">
+                                        <input type="radio" name="{{ item }}" value="1" class="form-check-input"
+                                            checked>
+                                    </td>
+                                    <td class="text-center nao-conforme">
+                                        <input type="radio" name="{{ item }}" value="0" class="form-check-input">
+                                    </td>
+                                    <td class="text-center nao-informado">
+                                        <input type="radio" name="{{ item }}" value="2" class="form-check-input">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grupo 3: Mecânica -->
+                    <div class="col-md-6">
+                        <h6 class="section-title"><i class="bi bi-gear"></i> Mecânica</h6>
+                        <table class="table table-sm checklist-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center conforme">Conforme</th>
+                                    <th class="text-center nao-conforme">Não Conforme</th>
+                                    <th class="text-center nao-informado">N/I</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ['velocimetro_tacografo', 'freios', 'macaco', 'chave_roda',
+                                'triangulo_sinalizacao', 'extintor_incendio', 'portas_travas',
+                                'sirene', 'fechamento_janelas', 'para_brisa', 'oleo_motor',
+                                'oleo_freio', 'nivel_agua_radiador'] %}
+                                <tr>
+                                    <td>{{ item.replace('_', ' ')|title }}</td>
+                                    <td class="text-center conforme">
+                                        <input type="radio" name="{{ item }}" value="1" class="form-check-input"
+                                            checked>
+                                    </td>
+                                    <td class="text-center nao-conforme">
+                                        <input type="radio" name="{{ item }}" value="0" class="form-check-input">
+                                    </td>
+                                    <td class="text-center nao-informado">
+                                        <input type="radio" name="{{ item }}" value="2" class="form-check-input">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grupo 4: Pneus e Estrutura -->
+                    <div class="col-md-6">
+                        <h6 class="section-title"><i class="bi bi-circle"></i> Pneus e Estrutura</h6>
+                        <table class="table table-sm checklist-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center conforme">Conforme</th>
+                                    <th class="text-center nao-conforme">Não Conforme</th>
+                                    <th class="text-center nao-informado">N/I</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ['pneus_estado_calibragem', 'pneu_reserva_estepe',
+                                'bancos_encosto_assentos', 'para_choque_dianteiro',
+                                'para_choque_traseiro', 'lataria'] %}
+                                <tr>
+                                    <td>{{ item.replace('_', ' ')|title }}</td>
+                                    <td class="text-center conforme">
+                                        <input type="radio" name="{{ item }}" value="1" class="form-check-input"
+                                            checked>
+                                    </td>
+                                    <td class="text-center nao-conforme">
+                                        <input type="radio" name="{{ item }}" value="0" class="form-check-input">
+                                    </td>
+                                    <td class="text-center nao-informado">
+                                        <input type="radio" name="{{ item }}" value="2" class="form-check-input">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grupo 5: Equipamento SKY -->
+                    <div class="col-md-6">
+                        <h6 class="section-title"><i class="bi bi-tools"></i> Equipamento SKY</h6>
+                        <table class="table table-sm checklist-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center conforme">Conforme</th>
+                                    <th class="text-center nao-conforme">Não Conforme</th>
+                                    <th class="text-center nao-informado">N/I</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ['estado_fisico_sky', 'funcionamento_sky', 'sapatas',
+                                'cestos', 'comandos', 'lubrificacao', 'ensaio_eletrico',
+                                'cilindros', 'gavetas', 'capas', 'nivel_oleo_sky'] %}
+                                <tr>
+                                    <td>{{ item.replace('_', ' ')|title }}</td>
+                                    <td class="text-center conforme">
+                                        <input type="radio" name="{{ item }}" value="1" class="form-check-input"
+                                            checked>
+                                    </td>
+                                    <td class="text-center nao-conforme">
+                                        <input type="radio" name="{{ item }}" value="0" class="form-check-input">
+                                    </td>
+                                    <td class="text-center nao-informado">
+                                        <input type="radio" name="{{ item }}" value="2" class="form-check-input">
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="col-md-12 mt-3">
+                        <label class="form-label">Observações</label>
+                        <textarea class="form-control" name="observacoes" rows="3"
+                            placeholder="Digite quaisquer observações relevantes..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão de Envio -->
+        <div class="col-md-12 text-end mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle"></i> Registrar Inspeção
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

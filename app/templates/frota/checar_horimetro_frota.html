@@ -1,0 +1,115 @@
+{% extends "frota/base_frota.html" %}
+
+{% block title %}Controle de Horímetro - Troca de Óleo{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/frota/checar_horimetro.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="horimetro-container">
+    <div class="horimetro-header">
+        <div>
+            <div class="horimetro-title">
+                <i class="bi bi-speedometer2"></i>
+                <h4>Controle de Troca de Óleo</h4>
+            </div>
+            <p class="horimetro-subtitle">Intervalo de manutenção: 300 horas</p>
+        </div>
+        <a href="{{ url_for('main.frota') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+        </a>
+    </div>
+
+    <div class="card horimetro-card">
+        <div class="card-header horimetro-card-header">
+            <h5><i class="bi bi-car-front"></i> Próximas Trocas de Óleo</h5>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover horimetro-table">
+                    <thead>
+                        <tr>
+                            <th class="align-middle">Placa</th>
+                            <th class="align-middle">Modelo</th>
+                            <th class="numeric-cell align-middle">Horímetro Atual</th>
+                            <th class="numeric-cell align-middle">Horas Restantes</th>
+                            <th class="numeric-cell align-middle">Próxima Troca</th>
+                            <th class="align-middle">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for veiculo in veiculos %}
+                        <tr>
+                            <td class="fw-bold align-middle">{{ veiculo.placa }}</td>
+                            <td class="align-middle">{{ veiculo.modelo }}</td>
+                            <td class="numeric-cell align-middle">
+                                {% if veiculo.ultimo_horimetro is not none %}
+                                {{ "%.1f"|format(veiculo.ultimo_horimetro) }}
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td class="numeric-cell align-middle">
+                                {% if veiculo.horas_restantes is not none %}
+                                {{ "%.1f"|format(veiculo.horas_restantes) }}
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td class="numeric-cell align-middle">
+                                {% if veiculo.ultimo_horimetro is not none %}
+                                300.0
+                                {% else %}
+                                <span class="text-muted">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle">
+                                {% if veiculo.ultimo_horimetro is none %}
+                                <span class="status-badge bg-status-no-data">Sem dados</span>
+                                {% elif veiculo.horas_restantes <= 0 %} <span class="status-badge bg-status-urgent">
+                                    Urgente</span>
+                                    {% elif veiculo.horas_restantes <= 50 %} <span
+                                        class="status-badge bg-status-warning">Atenção</span>
+                                        {% elif veiculo.horas_restantes <= 100 %} <span
+                                            class="status-badge bg-status-attention">Próximo</span>
+                                            {% else %}
+                                            <span class="status-badge bg-status-normal">Normal</span>
+                                            {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card-footer horimetro-footer">
+            <div class="legend-container">
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #ff6b6b;"></span>
+                    <span>Urgente (atrasada)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #ffd166;"></span>
+                    <span>Atenção (≤ 50h)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #06d6a0;"></span>
+                    <span>Próximo (≤ 100h)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #118ab2;"></span>
+                    <span>Normal (>100h)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #6c757d;"></span>
+                    <span>Sem dados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

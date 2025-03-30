@@ -1,0 +1,115 @@
+{% extends "frota/base_frota.html" %}
+
+{% block title %}Visualizar Inspeção #{{ inspecao.id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>
+            <i class="bi bi-eye-fill"></i> Inspeção #{{ inspecao.id }}
+            <small class="text-muted">{{ inspecao.data_formatada }}</small>
+        </h4>
+        <a href="{{ url_for('main.filtrar_inspecoes_frota') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5><i class="bi bi-info-circle"></i> Informações Básicas</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Veículo:</strong> {{ inspecao.placa }} - {{ inspecao.veiculo_modelo }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Motorista:</strong> {{ inspecao.motorista_nome }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Data/Hora:</strong> {{ inspecao.data_formatada }}</p>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-3">
+                    <p><strong>KM Atual:</strong> {{ inspecao.km_atual }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Horímetro:</strong> {{ inspecao.horimetro }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5><i class="bi bi-clipboard2-check"></i> Checklist de Inspeção</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for grupo in range(0, checklist_status|length, 10) %}
+                <div class="col-md-6">
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            {% for item in checklist_status[grupo:grupo+10] %}
+                            <tr>
+                                <td>{{ item.descricao }}</td>
+                                <td class="text-end">
+                                    <span
+                                        class="badge bg-{% if item.valor == 1 %}success{% elif item.valor == 0 %}danger{% else %}secondary{% endif %}">
+                                        {{ item.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    {% if inspecao.observacoes %}
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5><i class="bi bi-chat-left-text"></i> Observações</h5>
+        </div>
+        <div class="card-body">
+            <p>{{ inspecao.observacoes }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-4 d-flex justify-content-between">
+        <a href="{{ url_for('main.editar_inspecao_frota', id=inspecao.id) }}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Editar Inspeção
+        </a>
+        <form method="POST" action="{{ url_for('main.filtrar_inspecoes_frota') }}" class="d-inline">
+            <input type="hidden" name="excluir" value="{{ inspecao.id }}">
+            <button type="submit" class="btn btn-danger"
+                onclick="return confirm('Tem certeza que deseja excluir esta inspeção?')">
+                <i class="bi bi-trash"></i> Excluir Inspeção
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .badge.bg-success {
+        background-color: #28a745 !important;
+    }
+
+    .badge.bg-danger {
+        background-color: #dc3545 !important;
+    }
+
+    .badge.bg-secondary {
+        background-color: #6c757d !important;
+    }
+
+    table.table-sm td {
+        padding: 0.3rem;
+    }
+</style>
+{% endblock %}

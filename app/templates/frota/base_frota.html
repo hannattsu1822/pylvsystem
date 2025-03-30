@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linha Viva | Frota | {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/frota/main_frota.css') }}">
+
+    {% block css %}
+    <!-- CSS específico para páginas de inspeção -->
+    {% if 'inspecao' in request.path %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/frota/filtrar_inspecoes_frota.css') }}">
+    {% endif %}
+    {% endblock %}
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="bi bi-truck-front-fill"></i>
+                    <span>Linha Viva - Frota</span>
+                </div>
+                <div class="user-info">
+                    <h5>{{ session.nome }}</h5>
+                    <small>{{ session.cargo }}</small>
+                    <div class="matricula-badge">
+                        <i class="bi bi-person-vcard"></i> {{ session.matricula }}
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('main.dashboard') }}"
+                    class="nav-item {% if request.path == '/' or request.path == '/dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('main.frota') }}"
+                    class="nav-item {% if request.path.startswith('/frota') %}active{% endif %}">
+                    <i class="bi bi-truck"></i>
+                    <span>Frota</span>
+                </a>
+
+                <!-- Menu expandível para Inspeções -->
+                <div class="nav-item dropdown {% if 'inspecao' in request.path %}active{% endif %}">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-clipboard-check"></i>
+                        <span>Inspeções</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('main.nova_inspecao_frota') }}">
+                                <i class="bi bi-plus-circle"></i> Nova Inspeção
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('main.filtrar_inspecoes_frota') }}">
+                                <i class="bi bi-funnel"></i> Filtrar Inspeções
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <a href="{{ url_for('auth.logout') }}" class="nav-item logout-btn">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sair</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block scripts %}
+    <!-- Scripts específicos para páginas de inspeção -->
+    {% if 'inspecao' in request.path %}
+    <script>
+        // Função para confirmar exclusão
+        function confirmarExclusao() {
+            return confirm('Tem certeza que deseja excluir esta inspeção? Esta ação não pode ser desfeita.');
+        }
+
+        // Ativa tooltips
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+    {% endif %}
+    {% endblock %}
+</body>
+
+</html>

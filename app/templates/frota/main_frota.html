@@ -1,0 +1,49 @@
+{% extends "frota/base_frota.html" %}
+
+{% block title %}Gestão de Frota{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/frota/main_frota.css') }}">
+{% endblock %}
+
+{% block content %}
+<header class="content-header">
+    <h4><i class="bi bi-truck"></i> Gestão de Frota</h4>
+    <div class="breadcrumb">
+        <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        <span class="separator">/</span>
+        <span class="active">Frota</span>
+    </div>
+</header>
+
+<div class="content-body">
+    <div class="cards-grid">
+        <!-- Card Nova Inspeção -->
+        <a href="{{ url_for('main.nova_inspecao_frota') }}" class="dashboard-card inspecao-card">
+            <div class="card-icon">
+                <i class="bi bi-clipboard2-plus"></i>
+            </div>
+            <h3>Nova Inspeção</h3>
+            <p>Registrar nova inspeção veicular</p>
+        </a>
+
+        <!-- Card Filtrar Inspeções -->
+        <a href="{{ url_for('main.filtrar_inspecoes_frota') }}" class="dashboard-card filtrar-card">
+            <div class="card-icon">
+                <i class="bi bi-funnel"></i>
+            </div>
+            <h3>Filtrar Inspeções</h3>
+            <p>Consultar inspeções anteriores</p>
+        </a>
+
+        <!-- Card Checar Horímetro -->
+        <a href="{{ url_for('main.checar_horimetro_frota') }}" class="dashboard-card horimetro-card">
+            <div class="card-icon">
+                <i class="bi bi-speedometer2"></i>
+            </div>
+            <h3>Checar Horímetro</h3>
+            <p>Registrar quilometragem/horímetro</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

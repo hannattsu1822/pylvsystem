@@ -1,0 +1,555 @@
+{% extends "transformadores/base_trafo.html" %}
+
+{% block title %}Editar Checklist | Linha Viva{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transformadores/inspecao_trafo.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="inspection-page">
+    <div class="page-header">
+        <h1><i class="fas fa-edit"></i> Editar Checklist #{{ checklist.id }}</h1>
+        <nav class="breadcrumb">
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <span class="divider">/</span>
+            <a href="{{ url_for('main.transformadores') }}">Transformadores</a>
+            <span class="divider">/</span>
+            <a href="{{ url_for('main.filtrar_trafos') }}">Checklists</a>
+            <span class="divider">/</span>
+            <span class="current">Editar #{{ checklist.id }}</span>
+        </nav>
+    </div>
+
+    <div class="inspection-form">
+        <form method="POST" action="{{ url_for('main.editar_checklist', id=checklist.id) }}" id="edit-form">
+            <input type="hidden" name="numero_serie_original" value="{{ checklist.numero_serie }}">
+
+            <!-- Seção Identificação -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-info-circle"></i> Identificação</h2>
+                <div class="form-group">
+                    <label class="form-label">Número de Série*</label>
+                    <select class="form-control" name="numero_serie" required>
+                        <option value="">Selecione o transformador...</option>
+                        {% for trafo in transformadores %}
+                        <option value="{{ trafo.numero_serie }}" {% if trafo.numero_serie==checklist.numero_serie
+                            %}selected{% endif %}>
+                            {{ trafo.numero_serie }} - {{ trafo.marca }} {{ trafo.potencia }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Seção Histórico -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-history"></i> Histórico</h2>
+                <div class="form-group">
+                    <label class="form-label">Data de Fabricação</label>
+                    <input type="date" class="form-control" name="data_fabricacao"
+                        value="{% if checklist.data_fabricacao %}{% if checklist.data_fabricacao is string %}{{ checklist.data_fabricacao }}{% else %}{{ checklist.data_fabricacao.strftime('%Y-%m-%d') }}{% endif %}{% endif %}">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">O transformador foi reformado?*</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="reformado" value="Sim" {% if checklist.reformado %}checked{% endif
+                                %}>
+                            <span class="radiomark"></span>
+                            <span>Sim</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="reformado" value="Não" {% if not checklist.reformado %}checked{%
+                                endif %}>
+                            <span class="radiomark"></span>
+                            <span>Não</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group {% if not checklist.reformado %}d-none{% endif %}" id="data-reformado-group">
+                    <label class="form-label">Data da Reforma*</label>
+                    <input type="date" class="form-control" name="data_reformado"
+                        value="{% if checklist.data_reformado %}{% if checklist.data_reformado is string %}{{ checklist.data_reformado }}{% else %}{{ checklist.data_reformado.strftime('%Y-%m-%d') }}{% endif %}{% endif %}"
+                        {% if not checklist.reformado %}disabled{% endif %}>
+                </div>
+            </div>
+
+            <!-- Seção Tanque -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-oil-can"></i> Estado do Tanque</h2>
+                <p class="section-description">Selecione todos os itens que se aplicam:</p>
+
+                <div class="checkbox-grid">
+                    {% set tanque_items = checklist.detalhes_tanque_items if checklist.detalhes_tanque_items else [] %}
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Normal" {% if 'Normal' in tanque_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Normal</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Vestígios de Óleo" {% if 'Vestígios de Óleo'
+                            in tanque_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Vestígios de Óleo</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Queimado/Pintura Desgastada" {%
+                            if 'Queimado/Pintura Desgastada' in tanque_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Queimado/Desgaste</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Vestígios de Vazamento de Óleo" {%
+                            if 'Vestígios de Vazamento de Óleo' in tanque_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Vazamento de Óleo</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Plaqueta de Identificação Ilegível" {%
+                            if 'Plaqueta de Identificação Ilegível' in tanque_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Plaqueta Ilegível</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Furado" {% if 'Furado' in tanque_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Furado</span>
+                    </label>
+                    <label class="checkbox-option" id="corrosao-option">
+                        <input type="checkbox" name="estado_tanque" value="COM CORROSÃO" {% if 'COM CORROSÃO' in
+                            tanque_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Com Corrosão</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="estado_tanque" value="Outros" {% if 'Outros' in tanque_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Outros</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Seção Grau de Corrosão -->
+            <div class="form-section {% if 'COM CORROSÃO' not in tanque_items %}d-none{% endif %}"
+                id="corrosion-degree">
+                <h3 class="subsection-title">Grau de Corrosão</h3>
+                <div class="radio-group">
+                    {% set grau_corrosao = checklist.corrosao_tanque or '' %}
+                    <label class="radio-option">
+                        <input type="radio" name="corrosao_grau" value="PEQUENAS" {% if grau_corrosao=='PEQUENAS'
+                            %}checked{% endif %}>
+                        <span class="radiomark"></span>
+                        <span>Pequenas</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="corrosao_grau" value="REGULARES" {% if grau_corrosao=='REGULARES'
+                            %}checked{% endif %}>
+                        <span class="radiomark"></span>
+                        <span>Regulares</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="corrosao_grau" value="CRÍTICAS" {% if grau_corrosao=='CRÍTICAS'
+                            %}checked{% endif %}>
+                        <span class="radiomark"></span>
+                        <span>Críticas</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Seção Buchas Primárias -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-plug"></i> Buchas Primárias</h2>
+                <p class="section-description">Selecione todos os itens que se aplicam:</p>
+
+                <div class="checkbox-grid">
+                    {% set buchas_items = checklist.buchas_primarias_items if checklist.buchas_primarias_items else []
+                    %}
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Normal" {% if 'Normal' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Normal</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Trincada" {% if 'Trincada' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Trincada</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Quebrada" {% if 'Quebrada' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Quebrada</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Folgada" {% if 'Folgada' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Folgada</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Vedações Ressecadas" {%
+                            if 'Vedações Ressecadas' in buchas_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Vedações Ressecadas</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Com sinais de Descargas Atmosféricas" {%
+                            if 'Com sinais de Descargas Atmosféricas' in buchas_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Descargas Atmosféricas</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_primarias" value="Outros" {% if 'Outros' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Outros</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Seção Buchas Secundárias -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-plug"></i> Buchas Secundárias</h2>
+                <p class="section-description">Selecione todos os itens que se aplicam:</p>
+
+                <div class="checkbox-grid">
+                    {% set buchas_items = checklist.buchas_secundarias_items if checklist.buchas_secundarias_items else
+                    [] %}
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Normal" {% if 'Normal' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Normal</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Trincada" {% if 'Trincada' in
+                            buchas_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Trincada</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Quebrada" {% if 'Quebrada' in
+                            buchas_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Quebrada</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Folgada" {% if 'Folgada' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Folgada</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Vedações Ressecadas" {%
+                            if 'Vedações Ressecadas' in buchas_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Vedações Ressecadas</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Com sinais de Descargas Atmosféricas" {%
+                            if 'Com sinais de Descargas Atmosféricas' in buchas_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Descargas Atmosféricas</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="buchas_secundarias" value="Outros" {% if 'Outros' in buchas_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Outros</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Seção Conectores -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-bolt"></i> Conectores</h2>
+                <p class="section-description">Selecione todos os itens que se aplicam:</p>
+
+                <div class="checkbox-grid">
+                    {% set conectores_items = checklist.conectores_items if checklist.conectores_items else [] %}
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="conectores" value="Normal" {% if 'Normal' in conectores_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Normal</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="conectores" value="Com Sinais de Descargas Atmosféricas" {%
+                            if 'Com Sinais de Descargas Atmosféricas' in conectores_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Sinais de Descargas</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="conectores" value="Trincado" {% if 'Trincado' in conectores_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Trincado</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="conectores" value="Faltando Parafusos" {% if 'Faltando Parafusos'
+                            in conectores_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Faltando Parafusos</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="conectores" value="Parafusos Enferrujados" {%
+                            if 'Parafusos Enferrujados' in conectores_items %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Parafusos Enferrujados</span>
+                    </label>
+                    <label class="checkbox-option">
+                        <input type="checkbox" name="conectores" value="Outros" {% if 'Outros' in conectores_items
+                            %}checked{% endif %}>
+                        <span class="checkmark"></span>
+                        <span>Outros</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Seção Ensaios -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-tasks"></i> Ensaios</h2>
+
+                <div class="test-group">
+                    <h3 class="test-title">Bobina I</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_i" value="Em Curto Circuito" required {% if
+                                checklist.avaliacao_bobina_i=='Em Curto Circuito' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Em Curto Circuito</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_i" value="Em Aberto" {% if
+                                checklist.avaliacao_bobina_i=='Em Aberto' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Em Aberto</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_i" value="Normal" {% if
+                                checklist.avaliacao_bobina_i=='Normal' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Normal</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="test-group">
+                    <h3 class="test-title">Bobina II</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_ii" value="Em Curto Circuito" required {% if
+                                checklist.avaliacao_bobina_ii=='Em Curto Circuito' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Em Curto Circuito</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_ii" value="Em Aberto" {% if
+                                checklist.avaliacao_bobina_ii=='Em Aberto' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Em Aberto</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_ii" value="Normal" {% if
+                                checklist.avaliacao_bobina_ii=='Normal' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Normal</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="test-group">
+                    <h3 class="test-title">Bobina III</h3>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_iii" value="Em Curto Circuito" required {% if
+                                checklist.avaliacao_bobina_iii=='Em Curto Circuito' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Em Curto Circuito</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_iii" value="Em Aberto" {% if
+                                checklist.avaliacao_bobina_iii=='Em Aberto' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Em Aberto</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="avaliacao_bobina_iii" value="Normal" {% if
+                                checklist.avaliacao_bobina_iii=='Normal' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Normal</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção Conclusão -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-clipboard-check"></i> Conclusão</h2>
+
+                <div class="form-group">
+                    <label class="form-label">Status*</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="conclusao" value="Queimado" required {% if
+                                checklist.conclusao=='Queimado' %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Queimado</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="conclusao" value="Normal" {% if checklist.conclusao=='Normal'
+                                %}checked{% endif %}>
+                            <span class="radiomark"></span>
+                            <span>Normal</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Destinação*</label>
+                    <select class="form-control" name="transformador_destinado" required>
+                        <option value="">Selecione...</option>
+                        <option value="A Sucata" {% if checklist.transformador_destinado=='A Sucata' %}selected{% endif
+                            %}>A Sucata</option>
+                        <option value="A Estoque" {% if checklist.transformador_destinado=='A Estoque' %}selected{%
+                            endif %}>A Estoque</option>
+                        <option value="Manutenção" {% if checklist.transformador_destinado=='Manutenção' %}selected{%
+                            endif %}>Manutenção</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Observações</label>
+                    <textarea class="form-control" name="observacoes"
+                        rows="4">{{ checklist.observacoes or '' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Seção Responsáveis -->
+            <div class="form-section">
+                <h2 class="section-title"><i class="fas fa-user-tie"></i> Responsáveis</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Responsável Técnico</label>
+                            <input type="text" class="form-control" value="{{ current_user.nome }}" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Matrícula*</label>
+                            <input type="text" class="form-control" name="matricula_responsavel"
+                                value="{{ current_user.matricula }}" readonly required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Supervisor Técnico</label>
+                            <input type="text" class="form-control" value="Eng. Alisson" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Data</label>
+                            <input type="text" class="form-control" value="{{ data_atual }}" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="form-actions">
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+                <a href="{{ url_for('main.visualizar_checklist', id=checklist.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Controle da exibição da data de reforma
+        const reformadoRadios = document.querySelectorAll('input[name="reformado"]');
+        const reformadoGroup = document.getElementById('data-reformado-group');
+        const dataReformadoInput = document.querySelector('input[name="data_reformado"]');
+
+        function toggleReformadoFields() {
+            const reformado = document.querySelector('input[name="reformado"]:checked').value === 'Sim';
+            if (reformado) {
+                reformadoGroup.classList.remove('d-none');
+                dataReformadoInput.disabled = false;
+                dataReformadoInput.required = true;
+            } else {
+                reformadoGroup.classList.add('d-none');
+                dataReformadoInput.disabled = true;
+                dataReformadoInput.required = false;
+                dataReformadoInput.value = '';
+            }
+        }
+
+        reformadoRadios.forEach(radio => {
+            radio.addEventListener('change', toggleReformadoFields);
+        });
+
+        // Controle da exibição do grau de corrosão
+        const corrosaoCheckbox = document.querySelector('input[name="estado_tanque"][value="COM CORROSÃO"]');
+        const corrosionDegree = document.getElementById('corrosion-degree');
+
+        function toggleCorrosaoFields() {
+            if (corrosaoCheckbox.checked) {
+                corrosionDegree.classList.remove('d-none');
+                document.querySelector('input[name="corrosao_grau"]').required = true;
+            } else {
+                corrosionDegree.classList.add('d-none');
+                document.querySelectorAll('input[name="corrosao_grau"]').forEach(r => {
+                    r.required = false;
+                    r.checked = false;
+                });
+            }
+        }
+
+        if (corrosaoCheckbox) {
+            corrosaoCheckbox.addEventListener('change', toggleCorrosaoFields);
+            toggleCorrosaoFields(); // Inicializar estado
+        }
+
+        // Validação do formulário
+        document.getElementById('edit-form').addEventListener('submit', function (e) {
+            // Validar data de reforma se reformado=Sim
+            if (document.querySelector('input[name="reformado"]:checked').value === 'Sim' &&
+                !dataReformadoInput.value) {
+                e.preventDefault();
+                alert('Por favor, informe a data da reforma');
+                reformadoGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            // Validar grau de corrosão se COM CORROSÃO está marcado
+            if (corrosaoCheckbox && corrosaoCheckbox.checked &&
+                !document.querySelector('input[name="corrosao_grau"]:checked')) {
+                e.preventDefault();
+                alert('Por favor, selecione o grau de corrosão');
+                corrosionDegree.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+
+            return true;
+        });
+
+        // Inicializar campos
+        toggleReformadoFields();
+    });
+</script>
+{% endblock %}

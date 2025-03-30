@@ -1,0 +1,33 @@
+/* Estilos específicos para a página de edição de inspeção */
+.checklist-table {
+    font-size: 0.9rem;
+}
+
+.checklist-table th,
+.checklist-table td {
+    padding: 0.3rem;
+}
+
+.checklist-table input[type="radio"] {
+    margin: 0 auto;
+    display: block;
+}
+
+.section-title {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-top: 1rem;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.form-control,
+.form-select {
+    font-size: 0.9rem;
+}
+
+.btn-primary {
+    padding: 0.5rem 1.5rem;
+}
